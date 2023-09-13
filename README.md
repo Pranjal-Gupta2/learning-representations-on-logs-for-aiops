@@ -52,8 +52,33 @@ We present here the results in terms of precision, recall and f1-score. Please c
 
 ## Reproducing the results
 
-1. Pretraining - We use the pretraining script `run_mlm.py` from hugging face for building the foundation model. [Link](https://github.com/huggingface/transformers/blob/main/examples/pytorch/language-modeling/run_mlm.py)
-2. FineTuning - We use simpletransformers library for finetuning our model on the three downstream tasks. [Link](https://simpletransformers.ai/docs/multi-class-classification/)
+1. Pretraining - We use the pretraining script `run_mlm.py` from huggingface for building the foundation model. [Link](https://github.com/huggingface/transformers/blob/main/examples/pytorch/language-modeling/run_mlm.py)
+
+```bash
+python -m torch.distributed.launch \
+      --nproc_per_node 4 run_mlm.py \
+      --model_name_or_path bert-base-uncased \
+      --train_file train.txt \
+      --per_device_train_batch_size 64 \
+      --num_train_epochs 10 \
+      --do_train \
+      --output_dir OUTPUT_DIR \
+      --max_seq_length 512 \
+      --cache_dir OUTPUT_DIR/cache \
+      --save_strategy steps \
+      --save_steps 5000 \
+      --save_total_limit 100 \
+      --logging_strategy steps \
+      --logging_steps 1000 \
+      --line_by_line \
+      --report_to none \
+      --ddp_find_unused_parameters False \
+      --evaluation_strategy no \
+      --eval_accumulation_steps 256 \
+      --dataloader_num_workers 4 
+```
+
+2. FineTuning - We use simpletransformers library for finetuning our model on the three downstream tasks. [Link](https://simpletransformers.ai/docs/multi-class-classification/). 
 
 ## Citation
 
